@@ -1,13 +1,9 @@
-parameters:
-    # POLI_PAGE_BASE_URL is injected by the review harness (api-develop). When it
-    # is unset, fall back to null so the SDK's production default applies. This
-    # restores the env wiring dropped in b4f12b2 ("stop exposing api-develop URL"),
-    # which removed a hardcoded base_url without replacing it — leaving the demo
-    # pointed at the prod default api.poli.page (unresolvable here → 503s).
-    poli_page_base_url: null
-
 poli_page:
     api_key: '%env(POLI_PAGE_API_KEY)%'
-    base_url: '%env(default:poli_page_base_url:POLI_PAGE_BASE_URL)%'
+    # Injected by the review harness (api-develop). A plain env placeholder lets
+    # Symfony defer validation to runtime, where the value is set — restores the
+    # wiring dropped in b4f12b2 without hardcoding a URL. (A `default:` processor
+    # here materialises "" at compile time and trips the bundle's scheme check.)
+    base_url: '%env(POLI_PAGE_BASE_URL)%'
     exception_listener:
         enabled: true  # map PoliPageException -> {code,message,status,requestId} JSON
