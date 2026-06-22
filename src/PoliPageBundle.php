@@ -40,7 +40,12 @@ final class PoliPageBundle extends AbstractBundle
                     ->defaultNull()
                     ->validate()
                         ->ifTrue(static function (?string $v): bool {
-                            if (null === $v) {
+                            // Why: treat empty string like null (unset → SDK default).
+                            // Symfony's ValidateEnvPlaceholdersPass validates a
+                            // '%env(POLI_PAGE_BASE_URL)%' placeholder with a synthetic ""
+                            // at compile time, so rejecting empty would forbid env-based
+                            // base_url config entirely.
+                            if (null === $v || '' === $v) {
                                 return false;
                             }
                             $scheme = parse_url($v, \PHP_URL_SCHEME);
